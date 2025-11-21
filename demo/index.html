@@ -1,0 +1,210 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="da" style="font-size: 100%">
+<head>
+    <title>fcoo.dk - fcoo-maps-time-collection - Demo</title>
+    <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta http-equiv='x-dns-prefetch-control' content='on'>
+
+    <meta name='copyright' content='FCOO'>
+    <meta name='owner' content='FCOO'>
+
+  <link  href="bower_components.css" rel="stylesheet">
+</head>
+
+<body>
+    <script>
+        window.fcoo = window.fcoo || {};
+        window.fcoo.DEMO_VERSION = true;
+        //OR window.fcoo.LOCAL_DATA = true;
+
+        window.fcoo.DEV_VERSION = true;
+
+        if (window.location.href.includes('?testmodenow')){
+            window.FCOOMAPSTIME_TEST_NOW = true;
+            window.FCOOMAPSTIME_TEST_NOCONSOLE = true;
+            window.FCOOMAPSTIME_TEST_DURATION = 10, //10,
+            window.FCOOMAPSTIME_TEST_DELTA_HOURS = 6,
+            window.FCOOCOLLECTION_TEST_NOW = true;
+            window.FCOOCOLLECTION_TEST_STATUS = true;
+        }
+
+
+        window.LAYERZINDEX = [
+
+    {"id": "BACKGROUND_COASTLINE",  "desc": "Costline and names of cities and places."},
+
+    {"id": "STATIC",                "desc": "All static layers. At land = Typical geographic layers (borders, rivers etc.). At sea = Typical navigational layer (routes, zones etc.)  Must be above all dynamic layers"},
+
+
+    {"id": "DYNAMIC_AIR",           "desc": ""},
+
+
+    {"id": "BACKGROUND_LAND",       "desc": "Layer with background land"},
+
+    {"id": "DYNAMIC_SEA",           "desc": ""},
+
+
+
+    {"id": "BACKGROUND_SEA",        "desc": "Layer with background off the sea = seabed. Could be a colored map of sea depths"},
+
+
+
+
+    {"id": "THE_END",               "desc": "Just to allow simple editing of the other rows"}
+];
+
+
+
+
+    </script>
+
+    <script src="bower_components.js"></script>
+    <script src="../src/10-fcoo-maps-collection.js"></script>
+    <script src="../src/20-maplayer-collection.js"></script>
+    <script src="../src/30-maplayer-collection-wms.js"></script>
+    <script src="../src/40-maplayer-collection-mvt.js"></script>
+
+    <script>
+
+
+
+        //TEMP: No access to data-files on AWS. Read from old location instead
+        window.fcoo.path.setPath({host: 'bal.fcoo.dk'});
+
+        /************************************
+        Create demo layer with wind speed
+        ************************************/
+        let ns      = window.fcoo = window.fcoo || {},
+            nsMap   = ns.map  = ns.map || {},
+            id_wind = "WIND",
+            id_curr = "GETM_CURRENT",
+            id_sali = "GETM_SALINITY",
+
+            id_test_windspeed = "DMI_WIND_SPEED_TEST";
+
+        ns.promiseList.appendLast({
+            data: 'Create METOC menus',
+            resolve: () => {
+
+
+                //Create a demo-layer
+                var demo_windspeed_options = {
+                    icon: 'fa-map',
+                    text: {da: 'DMI Vindhastighed (0 til +12)', en: 'DMI Wind speed (0 to +12)'},
+
+                    legendOptions: {
+                        content: '<img width="100%" src="https://wms01.fcoo.dk/webmap/v3/data/VNETCDF/DMI/HARMONIE/DMI_NEA_MAPS_v005C.ncv.wms?request=GetColorbar&amp;styles=horizontal%2Cnolabel&amp;cmap=Wind_ms_BGYRP_11colors">'
+                    },
+                    layerOptions: {
+                        dataset : 'VNETCDF/DMI/HARMONIE/DMI_NEA_MAPS_v005C.ncv',
+                        layers  : 'windspeed',
+                        styles  : {
+                            plot_method : 'contourf',
+                            //legend      : 'Wind_ms_BGYRP_11colors_1.1'
+                        },
+                        cmap    : 'Wind_ms_BGYRP_11colors_1.1',
+                    },
+                };
+
+                nsMap.createMapLayer[id_test_windspeed] = function(options, addMenu){
+                    let mapLayerOptions = $.extend({}, demo_windspeed_options);
+                    let mapLayer = nsMap._addMapLayer(id_test_windspeed, nsMap.MapLayer_time_wms_dynamic, mapLayerOptions );
+                    addMenu( mapLayer.menuItemOptions() );
+                };
+
+                nsMap.add_MapLayer_Collection_wms({
+                    id          : id_wind,
+                    text        : {da:'Vindhastighed', en:'Wind speed'},
+                    //prefix : 'Prefix',
+                    //postfix: 'Postfix',
+                    parameterId : 'wind_speed',
+                    method      : 'SCALE',
+                    timeRange: {min: 0, max:12},
+                    zIndex      : '',
+                    colorScale  : 'Wind_ms_BGYRP_11colors'
+                });
+
+//*
+                nsMap.add_MapLayer_Collection_wms({
+                    id          : id_curr,
+                    text        : {da:'Strømdhastighed', en:'Current speed'},
+                    parameterId : 'sea_water_speed',
+                    method      : 'SCALE',
+                    zIndex      : 'DYNAMIC_SEA',
+                    colorScale  : 'Current_kn_WGYR_11colors'
+                });
+
+                nsMap.add_MapLayer_Collection_wms({
+                    id          : id_sali,
+                    text        : {da:'Salinitet', en:'Salinity'},
+                    parameterId : 'sea_water_salinity',
+                    method      : 'SCALE',
+                    zIndex      : 'DYNAMIC_SEA',
+                    colorScale  : 'PrSal_psu_GB_14colors'
+                });
+//*/
+
+/*
+                var demo_windspeed_options = {
+                    icon: 'fa-map',
+                    text: {da: 'DMI Vindhastighed (0 til +12)', en: 'DMI Wind speed (0 to +12)'},
+
+                    timeRange: {
+                        min: 0, max:12
+                    },
+                    legendOptions: {
+                        content: '<img width="100%" src="https://wms01.fcoo.dk/webmap/v3/data/VNETCDF/DMI/HARMONIE/DMI_NEA_MAPS_v005C.ncv.wms?request=GetColorbar&amp;styles=horizontal%2Cnolabel&amp;cmap=Wind_ms_BGYRP_11colors">'
+                    },
+                    layerOptions: {
+                        dataset : 'VNETCDF/DMI/HARMONIE/DMI_NEA_MAPS_v005C.ncv',
+                        layers  : 'windspeed',
+                        styles  : {
+                            plot_method : 'contourf',
+                            legend      : 'Wind_ms_BGYRP_11colors_1.1'
+                        },
+                        cmap    : 'Wind_ms_BGYRP_11colors_1.1',
+                    },
+                };
+
+                var id_windspeed = "DMI_WIND_SPEED";
+
+        nsMap.createMapLayer[id_windspeed] = function(options, addMenu){
+            let mapLayerOptions = $.extend({}, demo_windspeed_options);
+            let mapLayer = nsMap._addMapLayer(id_windspeed, nsMap.MapLayer_time_wms_dynamic, mapLayerOptions );
+            addMenu( mapLayer.menuItemOptions() );
+        };
+*/
+
+
+
+
+
+
+
+            }
+         });
+
+
+
+
+        nsMap.createApplication({
+            //options
+            applicationName : {da:'DA: fcoo-maps-time-collection', en:'EN: fcoo-maps-time-collection'},
+            menuOptions     : {keepAll: true},
+            leftMenu        : {isLayerMenu: true, width: 350},
+            timeOptions     : {
+                min: -0, max: 24,
+                modeMinMax: {
+                    RELATIVE: {min: -15, max: 22}
+                }
+            }
+        },
+
+        //layerMenu
+        [{icon: 'fa-home', text: {da:'prognoser', en:'Forecast'}, list: [id_test_windspeed, id_wind, id_curr, id_sali]}]
+    );
+
+    </script>
+</body>
+</html>
