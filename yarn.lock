@@ -931,11 +931,9 @@
     regenerator-runtime "^0.14.0"
 
 "@babel/runtime@^7.8.4":
-  version "7.23.1"
-  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.23.1.tgz#72741dc4d413338a91dcb044a86f3c0bc402646d"
-  integrity sha512-hC2v6p8ZSI/W0HUzh3V8C5g+NwSKzKPtJwSpTjwl0o297GP9+ZLQSkdvHz46CM3LqyoXxq+5G9komY+eSqSO0g==
-  dependencies:
-    regenerator-runtime "^0.14.0"
+  version "7.28.4"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.28.4.tgz#a70226016fabe25c5783b2f22d3e1c9bc5ca3326"
+  integrity sha512-Q/N6JNWvIvPnLDvjlE1OUBLPQHH6l3CltCEsHIujp45zQUSSh8K+gHnaEX45yAT1nyngnINhvWtzN+Nb9D8RAQ==
 
 "@babel/template@^7.22.15", "@babel/template@^7.22.5":
   version "7.22.15"
@@ -4382,8 +4380,9 @@ grunt-css-url-embed@^1.6.1:
   optionalDependencies:
     mmmagic "~0.5.0"
 
-"grunt-curl@github:fcoo/grunt-curl#^2.6.0":
+grunt-curl@fcoo/grunt-curl#^2.6.0:
   version "2.6.0"
+  uid "30664557ed8c16c026832ebbb374f021d5a8f272"
   resolved "https://codeload.github.com/fcoo/grunt-curl/tar.gz/30664557ed8c16c026832ebbb374f021d5a8f272"
   dependencies:
     async "^3.1.0"
@@ -4527,8 +4526,9 @@ grunt-legacy-util@~2.0.1:
     underscore.string "~3.3.5"
     which "~2.0.2"
 
-"grunt-postcss@github:fcoo/grunt-postcss#^1.0.0":
+grunt-postcss@fcoo/grunt-postcss#^1.0.0:
   version "0.9.0"
+  uid d9e44402f76ea098602188e22409fcc1d1f89e18
   resolved "https://codeload.github.com/fcoo/grunt-postcss/tar.gz/d9e44402f76ea098602188e22409fcc1d1f89e18"
   dependencies:
     chalk "^2.1.0"
