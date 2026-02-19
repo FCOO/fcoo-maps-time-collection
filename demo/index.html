@@ -32,17 +32,22 @@
 
         window.LAYERZINDEX = [
 
+    {"id": "DYNAMIC_DIRECTION_AIR", "desc": "Dynamic layer in the air displayed as black directions arrows"},
+
+    {"id": "DYNAMIC_VECTOR_AIR",    "desc": "Dynamic layer in the air displayed as colored vectors"},
+
     {"id": "BACKGROUND_COASTLINE",  "desc": "Costline and names of cities and places."},
+
 
     {"id": "STATIC",                "desc": "All static layers. At land = Typical geographic layers (borders, rivers etc.). At sea = Typical navigational layer (routes, zones etc.)  Must be above all dynamic layers"},
 
 
-    {"id": "DYNAMIC_AIR",           "desc": ""},
+    {"id": "DYNAMIC_SCALE_AIR",     "desc": "Dynamic layer in the air displayed as scalar (fuld colored)"},
 
 
     {"id": "BACKGROUND_LAND",       "desc": "Layer with background land"},
 
-    {"id": "DYNAMIC_SEA",           "desc": ""},
+    {"id": "DYNAMIC_SCALE_SEA",     "desc": "Dynamic layer in the sea displayed as scalar (fuld colored)"},
 
 
 
@@ -60,7 +65,7 @@
     </script>
 
     <script src="bower_components.js"></script>
-    <script src="../src/10-fcoo-maps-collection.js"></script>
+    <script src="../src/10-fcoo-maps-time-collection.js"></script>
     <script src="../src/20-maplayer-collection.js"></script>
     <script src="../src/30-maplayer-collection-wms.js"></script>
     <script src="../src/40-maplayer-collection-mvt.js"></script>
@@ -77,45 +82,87 @@
         ************************************/
         let ns      = window.fcoo = window.fcoo || {},
             nsMap   = ns.map  = ns.map || {},
-            id_wind = "WIND",
-            id_curr = "GETM_CURRENT",
-            id_sali = "GETM_SALINITY",
-
-            id_test_windspeed = "DMI_WIND_SPEED_TEST";
+            idList = [
+                "CUR",
+                "WIND",
+                "WIND2",
+                "WIND_SPEED",
+                "WIND_DIR",
+                "CUR_SPEED",
+                "SALINITY",
+                'AIRTEMP'
+            ];
 
         ns.promiseList.appendLast({
             data: 'Create METOC menus',
             resolve: () => {
 
 
-                //Create a demo-layer
-                var demo_windspeed_options = {
-                    icon: 'fa-map',
-                    text: {da: 'DMI Vindhastighed (0 til +12)', en: 'DMI Wind speed (0 to +12)'},
-
-                    legendOptions: {
-                        content: '<img width="100%" src="https://wms01.fcoo.dk/webmap/v3/data/VNETCDF/DMI/HARMONIE/DMI_NEA_MAPS_v005C.ncv.wms?request=GetColorbar&amp;styles=horizontal%2Cnolabel&amp;cmap=Wind_ms_BGYRP_11colors">'
-                    },
-                    layerOptions: {
-                        dataset : 'VNETCDF/DMI/HARMONIE/DMI_NEA_MAPS_v005C.ncv',
-                        layers  : 'windspeed',
-                        styles  : {
-                            plot_method : 'contourf',
-                            //legend      : 'Wind_ms_BGYRP_11colors_1.1'
-                        },
-                        cmap    : 'Wind_ms_BGYRP_11colors_1.1',
-                    },
-                };
-
-                nsMap.createMapLayer[id_test_windspeed] = function(options, addMenu){
-                    let mapLayerOptions = $.extend({}, demo_windspeed_options);
-                    let mapLayer = nsMap._addMapLayer(id_test_windspeed, nsMap.MapLayer_time_wms_dynamic, mapLayerOptions );
-                    addMenu( mapLayer.menuItemOptions() );
-                };
 
                 nsMap.add_MapLayer_Collection_wms({
-                    id          : id_wind,
+                    id          : "WIND_DIR",
+                    parameterId : 'wind',
+                    method      : 'DIRECTION_VECTOR',
+                    //zIndex      : 'DYNAMIC_SEA',
+                    colorScale  : 'Current_kn_WGYR_11colors'
+                });
+
+                nsMap.add_MapLayer_Collection_wms({
+                    id          : "CUR",
+                    parameterId : 'sea_water_velocity',
+                    method      : 'VECTOR',
+                    zIndex      : 'DYNAMIC_SEA',
+                    colorScale  : 'Current_kn_WGYR_11colors'
+                });
+
+
+//*
+
+                nsMap.add_MapLayer_Collection_wms({
+                    id          : 'WIND',
+                    icon        : 'fal fa-lg fa-up-right',
+                    //prefix : 'Prefix',
+                    //postfix: 'Postfix',
+                    parameterId : 'wind',
+                    unit        : 'kn',
+                    z           : '2m',
+                    method      : 'VECTOR',
+                    VECTOR_OLD  : true,
+                    zIndex      : '',
+                    colorScale  : 'Wind_ms_BGYRP_11colors'
+                });
+
+//*/
+//*
+
+
+                nsMap.add_MapLayer_Collection_wms({
+                    id          : 'WIND2',
+                    icon        : 'fal fa-lg fa-up-left',
+                    //prefix : 'Prefix',
+                    postfix: '(spacing 120)',
+                    parameterId : 'wind',
+                    unit        : 'kn',
+                    z           : '2m',
+                    method      : 'VECTOR',
+                    VECTOR_OLD  : true,
+                    zIndex      : '',
+                    styles      : {
+                        vector_spacing: 120,
+                        vector_offset : 30
+                    },
+
+                    colorScale  : 'Wind_ms_BGYRP_11colors'
+                });
+
+
+//*/
+
+//*
+                nsMap.add_MapLayer_Collection_wms({
+                    id          : 'WIND_SPEED',
                     text        : {da:'Vindhastighed', en:'Wind speed'},
+                    //icon: 'far fa-home',
                     //prefix : 'Prefix',
                     //postfix: 'Postfix',
                     parameterId : 'wind_speed',
@@ -124,19 +171,35 @@
                     zIndex      : '',
                     colorScale  : 'Wind_ms_BGYRP_11colors'
                 });
+//*/
 
 //*
                 nsMap.add_MapLayer_Collection_wms({
-                    id          : id_curr,
-                    text        : {da:'Strømdhastighed', en:'Current speed'},
+                    id          : 'AIRTEMP',
+                    //text        : {da:'Lufttemperatur', en:'Air temperature'},
+                    parameterId : 'air_temperature',
+                    method      : 'SCALE',
+                    zIndex      : '',
+                    colorScale  : 'AirTempGlobal_C_BWYR_16colors_1.0'
+                });
+
+
+//*
+                nsMap.add_MapLayer_Collection_wms({
+                    id          : 'CUR_SPEED',
+                    //text        : {da:'Strømdhastighed', en:'Current speed'},
                     parameterId : 'sea_water_speed',
+                    z           : '2m',
                     method      : 'SCALE',
                     zIndex      : 'DYNAMIC_SEA',
                     colorScale  : 'Current_kn_WGYR_11colors'
                 });
 
+//*/
+
+//*
                 nsMap.add_MapLayer_Collection_wms({
-                    id          : id_sali,
+                    id          : 'SALINITY',
                     text        : {da:'Salinitet', en:'Salinity'},
                     parameterId : 'sea_water_salinity',
                     method      : 'SCALE',
@@ -187,6 +250,14 @@
 
 
 
+        //Create menu-list
+        let menuList = [];
+        console.log(nsMap.createMapLayer);
+        idList.forEach( id => {
+//            if (nsMap.createMapLayer[id])
+                menuList.push(id);
+        });
+
 
         nsMap.createApplication({
             //options
@@ -194,16 +265,16 @@
             menuOptions     : {keepAll: true},
             leftMenu        : {isLayerMenu: true, width: 350},
             timeOptions     : {
-                min: -0, max: 24,
+                min: -24, max: 48,
                 modeMinMax: {
-                    RELATIVE: {min: -15, max: 22}
+                    RELATIVE: {min: -12, max: 24}
                 }
             }
         },
 
-        //layerMenu
-        [{icon: 'fa-home', text: {da:'prognoser', en:'Forecast'}, list: [id_test_windspeed, id_wind, id_curr, id_sali]}]
-    );
+            //layerMenu
+            [{icon: 'fa-home', text: {da:'prognoser', en:'Forecast'}, list: menuList}]
+        );
 
     </script>
 </body>

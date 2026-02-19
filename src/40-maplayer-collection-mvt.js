@@ -38,7 +38,7 @@ maplayer-collection-mvt.js,
             return options; //TODO
         },
 
-        getLayerOptions: function( options ){
+        getLayerOptions: function( /*options*/ ){
             return {}; //TODO
 
         }

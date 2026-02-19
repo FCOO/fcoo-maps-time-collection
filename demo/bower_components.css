@@ -1164,6 +1164,18 @@ Color for time = tree colors for the past, now, and the future
   background-color: var(--fc-time-future-color);
 }
 
+.time-past-color-as-text-color {
+  color: var(--fc-time-past-color);
+}
+
+.time-now-color-as-text-color {
+  color: var(--fc-time-now-color);
+}
+
+.time-future-color-as-text-color {
+  color: var(--fc-time-future-color);
+}
+
 /**********************************************************
 Application color
 Defaults is = DALO color in "Forsvarsministeriets koncernfælles Designmanual 2018"
@@ -50016,6 +50028,32 @@ See src/common/dataset.js
   stroke: brown;
 }
 
+.text-red {
+  color: red !important;
+}
+
+.lpl-base.lpl-red {
+  fill: red;
+}
+
+.lpl-base.lpl-border-red,
+.lpl-shadow.lpl-border-red {
+  stroke: red;
+}
+
+.text-darkblue {
+  color: darkblue !important;
+}
+
+.lpl-base.lpl-darkblue {
+  fill: darkblue;
+}
+
+.lpl-base.lpl-border-darkblue,
+.lpl-shadow.lpl-border-darkblue {
+  stroke: darkblue;
+}
+
 :root {
   --cmd-current-map: darkmagenta;
 }
@@ -50028,6 +50066,134 @@ See src/common/dataset.js
 .cmd-current-map-container .cmd-current-map {
   display: inline-block;
   border: 2px solid var(--cmd-current-map);
+}
+
+.dataset-with-polygon-0 .hide-for-dataset-with-polygon-0 {
+  display: none !important;
+}
+
+.no-dataset-with-polygon-0 .show-for-dataset-with-polygon-0 {
+  display: none !important;
+}
+
+.dataset-with-polygon-1 .hide-for-dataset-with-polygon-1 {
+  display: none !important;
+}
+
+.no-dataset-with-polygon-1 .show-for-dataset-with-polygon-1 {
+  display: none !important;
+}
+
+.dataset-with-polygon-2 .hide-for-dataset-with-polygon-2 {
+  display: none !important;
+}
+
+.no-dataset-with-polygon-2 .show-for-dataset-with-polygon-2 {
+  display: none !important;
+}
+
+.dataset-with-polygon-3 .hide-for-dataset-with-polygon-3 {
+  display: none !important;
+}
+
+.no-dataset-with-polygon-3 .show-for-dataset-with-polygon-3 {
+  display: none !important;
+}
+
+.dataset-with-polygon-4 .hide-for-dataset-with-polygon-4 {
+  display: none !important;
+}
+
+.no-dataset-with-polygon-4 .show-for-dataset-with-polygon-4 {
+  display: none !important;
+}
+
+.dataset-with-polygon-5 .hide-for-dataset-with-polygon-5 {
+  display: none !important;
+}
+
+.no-dataset-with-polygon-5 .show-for-dataset-with-polygon-5 {
+  display: none !important;
+}
+
+.dataset-with-polygon-6 .hide-for-dataset-with-polygon-6 {
+  display: none !important;
+}
+
+.no-dataset-with-polygon-6 .show-for-dataset-with-polygon-6 {
+  display: none !important;
+}
+
+.dataset-with-polygon-7 .hide-for-dataset-with-polygon-7 {
+  display: none !important;
+}
+
+.no-dataset-with-polygon-7 .show-for-dataset-with-polygon-7 {
+  display: none !important;
+}
+
+.dataset-with-polygon-8 .hide-for-dataset-with-polygon-8 {
+  display: none !important;
+}
+
+.no-dataset-with-polygon-8 .show-for-dataset-with-polygon-8 {
+  display: none !important;
+}
+
+.dataset-with-polygon-9 .hide-for-dataset-with-polygon-9 {
+  display: none !important;
+}
+
+.no-dataset-with-polygon-9 .show-for-dataset-with-polygon-9 {
+  display: none !important;
+}
+
+.dataset-with-polygon-10 .hide-for-dataset-with-polygon-10 {
+  display: none !important;
+}
+
+.no-dataset-with-polygon-10 .show-for-dataset-with-polygon-10 {
+  display: none !important;
+}
+
+.dataset-with-polygon-11 .hide-for-dataset-with-polygon-11 {
+  display: none !important;
+}
+
+.no-dataset-with-polygon-11 .show-for-dataset-with-polygon-11 {
+  display: none !important;
+}
+
+.dataset-with-polygon-12 .hide-for-dataset-with-polygon-12 {
+  display: none !important;
+}
+
+.no-dataset-with-polygon-12 .show-for-dataset-with-polygon-12 {
+  display: none !important;
+}
+
+.dataset-with-polygon-13 .hide-for-dataset-with-polygon-13 {
+  display: none !important;
+}
+
+.no-dataset-with-polygon-13 .show-for-dataset-with-polygon-13 {
+  display: none !important;
+}
+
+.dataset-with-polygon-14 .hide-for-dataset-with-polygon-14 {
+  display: none !important;
+}
+
+.no-dataset-with-polygon-14 .show-for-dataset-with-polygon-14 {
+  display: none !important;
+}
+
+.dataset-with-polygon-15 .hide-for-dataset-with-polygon-15 {
+  display: none !important;
+}
+
+.no-dataset-with-polygon-15 .show-for-dataset-with-polygon-15 {
+  display: none !important;
 }
 /* 
  * Leaflet TimeDimension v1.1.1 - 2019-11-05 
@@ -50546,6 +50712,11 @@ Modal
 /***********************************************
 Button And Modal
 Opacity for semi-transparent and transparent content using color-mix
+************************************************/
+/***********************************************
+$type-2-alert-color
+Conections between "type" and Bootstrap color-class-names
+Used in _noty.scss and _modal.scss
 ************************************************/
 /************************************************************
 MIXIN

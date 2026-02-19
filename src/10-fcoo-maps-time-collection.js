@@ -1,5 +1,5 @@
 /****************************************************************************
-    fcoo-maps-collection.js,
+    fcoo-maps-time-collectionscollection.js,
 
     (c) 2025, FCOO
 

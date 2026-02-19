@@ -31,12 +31,31 @@
             this.collection.addOnUpdate( this.update.bind(this) );
 
         //Adjust icon and text. Add prefix and postfix (if any). If not name or text is given use parameters name
-        let name     = options.name || options.text || this.parameter.name,
+        let parameterName       = {da:'Ukendt', en:'Unknown'},
+            parameterLegendName = parameterName;
+        if (this.parameter){
+            parameterName       = this.parameter.getName(false/*inclUnit*/, options.z, options.unit),
+            parameterLegendName = this.parameter.getName(true/*inclUnit*/,  options.z, options.unit);
+        }
+
+        let name     = options.name || options.text || parameterName,
             nameList = [];
         if (options.prefix) nameList.push(options.prefix);
         nameList.push(name);
         if (options.postfix) nameList.push(options.postfix);
         options.text = ns.combineLang(nameList);
+
+
+        let legendName = options.legendName || options.legendText || parameterLegendName;
+        nameList = [];
+        if (options.prefix) nameList.push(options.prefix);
+        nameList.push(legendName);
+        if (options.postfix) nameList.push(options.postfix);
+        options.legendText = ns.combineLang(nameList);
+
+
+
+
 
         //Extend with default options
 
@@ -47,6 +66,7 @@
         //Get the zIndex: Eighter as an id (STRING) or a number
         let zIndex = options.zIndex || options.z || options.zIndexId || options.zId,
             delta  = options.deltaZIndex || options.deltaZ || 0;
+
         if (typeof zIndex == 'string')
             zIndex = nsMap.getZIndex(zIndex, delta);
         else
@@ -104,7 +124,7 @@
                             layers  : this.parameter.id,
                             //zIndex  : this.options.zIndex,
                             zIndex  : options.zIndex,
-                            styles : {}
+                            styles  : {}
                         },
                         this.getLayerOptions(options) || {}
                    );
@@ -116,6 +136,7 @@
         Overwriten by decending classes
         **********************************************************/
         getLayerOptions: function(/* options */){
+            return {};
         },
 
         /**********************************************************
@@ -124,7 +145,6 @@
         **********************************************************/
         _getLegendOptions: function(options){
             let collectionAsModal = function( id, selected, $button, map ){
-
                 let modalOptions = {};
                 if (map){
                     modalOptions = {
@@ -143,32 +163,42 @@
                             future: nsTime.futureColorValue
                         }
                     });
-/* MANGLER skal tilrette collection-info time-range til application time range. Collection time range kan jo være længere end application
-Contains info about the application time-range
-"current" mean for the current selected time mode
-    {
-        currentMin      : NUMBER = The current relative min time-stamp
-        currentMax      : NUMBER = The current relative max time-stamp
-        currentMinMoment: MOMENT = The current min time-stamp (Moment)
-        currentMaxMoment: MOMENT = The current max time-stamp (Moment)
 
-        min      : NUMBER = The posible relative min time-stamp
-        max
-    }
-*/
+                /*
+                Note:
+                The time-range for the collection can be larger that the time-range used in the application
+                There are two possible ways:
+                A:  Just show the time-range for the collection "as is"
+                B:  Adjust the time-range displayed in the info-modal to fit the time-range given in the application.
+                    Will need to use the info about current time-range for the current selected time mode
+                    nsTime.getCurrentTimeModeData() return
+                    TimeModeData = object with methods and data for a specific timeMode
+                    TimeModeData.data = {
+                        currentMoment   : MOMENT
+                        currentRelative : NUMBER
+                        min             : NUMBER
+                        max             : NUMBER
+                        globalMin       : NUMBER
+                        globalMax       : NUMBER
+                        start           : NUMBER
+                        end             : NUMBER
+                    }
+
+                OPTION A IS USED!
+                */
 
                 modalOptions.header = {icon: options.icon, text: options.text};
-
                 this.collection.asModal(modalOptions);
-
             }.bind(this);
 
             return  $.extend(true, {}, {
+                            text     : options.legendText,
+
                             onInfo   : collectionAsModal,
                             onWarning: collectionAsModal,
                             onAlert  : collectionAsModal,
                             onError  : collectionAsModal,
-                            content  : this.createLegendContent.bind(this)
+                            content  : this.createLegendContent.bind(this),
                         },
                         this.getLegendOptions(options) || {}
                     );
@@ -176,8 +206,7 @@ Contains info about the application time-range
 
 
         //getLegendOptions = extract legendOptions from options
-        getLegendOptions: function(options){
-            //Overwriten by decending classes
+        getLegendOptions: function(/*options*/){
         },
 
         /**********************************************************
@@ -220,9 +249,9 @@ Contains info about the application time-range
                     if (!onlyMap || (onlyMap == info.map)){
                         let legend = info.legend;
                         legend.toggleIcon('info',    state == nsCollection.stateOk  );
-                        legend.toggleIcon('warning', true);//state == nsCollection.stateWarn);
-                        legend.toggleIcon('alert',   true);//state == nsCollection.stateAlert);
-                        legend.toggleIcon('error',   true);//state == nsCollection.stateFail);
+                        legend.toggleIcon('warning', state == nsCollection.stateWarn);
+                        legend.toggleIcon('alert',   state == nsCollection.stateAlert);
+                        legend.toggleIcon('error',   state == nsCollection.stateFail);
                     }
                 }, this);
             }
