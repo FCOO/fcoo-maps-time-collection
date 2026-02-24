@@ -110,7 +110,7 @@
 
         //Extend with default options
 
-        //Extend with methods and options
+        //Extend options
         options = $.extend(true, {}, this.defaultOptions, options);
         options = this.adjustOptions( options );
 
@@ -333,38 +333,6 @@ maplayer-collection-wms.js,
     Plot methods
     The different ways to plot a wwms-layer
     ***********************************************************/
-    let wmsPlotMethod = nsMap.wmsPlotMethod = {
-            'SCALE' : {
-                plot_method : 'contourf',
-                zIndex      : 'DYNAMIC_SCALE_AIR' ,
-                styles      : {},
-
-                desc        : '',
-
-            },
-            'VECTOR' : {
-                plot_method : 'color_quiver1',  //Wind
-                plot_method2: 'color_quiver2',  //Current
-                zIndex      : 'DYNAMIC_VECTOR_AIR',
-                styles      : {
-                    vector_spacing: 80,
-                    vector_offset : 20
-                },
-
-                desc        : 'Colored vectors'
-            },
-
-            'VECTOR2' : {
-                plot_method1: 'color_quiver1',  //Wind
-                plot_method : 'color_quiver2',  //Current
-                zIndex      : '',
-                styles      : {
-                    vector_spacing: 80,
-                    vector_offset : 20
-                },
-
-                desc        : 'Colored vectors'
-            },
 /*
 https://wms01.fcoo.dk/webmap/v3/data/VNETCDF/DMI/HARMONIE/DMI_NEA_MAPS_v005C.ncv.wms?service=WMS
 request=GetMap
@@ -435,22 +403,6 @@ TRANSPARENT=TRUE
 
 
 
-            'DIRECTION_VECTOR' : {
-                plot_method : 'black_vector',
-                zIndex      : '',
-                styles      : {},
-
-                desc        : 'Black vectors'
-
-            },
-            'ISOLINE' : {
-                plot_method : '',
-                zIndex      : '',
-                styles      : {},
-
-                desc        : ''
-            }
-        };
 
 
     /**********************************************************************************************************************
@@ -459,6 +411,9 @@ TRANSPARENT=TRUE
     A MapLayer that displays wms layers from a collection
     ***********************************************************************************************************************
     ***********************************************************************************************************************/
+    //wmsOptionsToStyles =  global list of properrties that need to be in styles
+    nsMap.wmsOptionsToStyles = ['plot_method', 'vector_spacing', 'vector_offset'];
+
     function MapLayer_Collection_wms(options){
         nsMap.MapLayer_Collection.call(this, options);
     }
@@ -470,21 +425,13 @@ TRANSPARENT=TRUE
         subDir     : 'wms',
         createLayer: nsMap.layer_wms_dynamic,
 
-        defaultOptions: {
-            method: 'SCALE',
-        },
-
         adjustOptions: function(options){
-            this.method = wmsPlotMethod[options.method] || {};
-
             let fallbackOptions = {
                 plot_method: 'contourf'
             };
 
-            //Get options given by method if not given directly
-            ['cmap', 'scale', 'colorScale', 'zIndex', 'plot_method'].forEach( id => {
-                options[id] = options[id] || this.method[id] || fallbackOptions[id];
-            }, this);
+            //Get options if not given directly
+            $.each(fallbackOptions, (id, value) => options[id] = options[id] || value );
 
             options.cmap = options.cmap || options.scale || options.colorScale;
 
@@ -493,13 +440,15 @@ TRANSPARENT=TRUE
 
         getLayerOptions: function( options ){
             let result = {
-                    cmap: options.cmap,
-                    styles: {
-                        plot_method : options.plot_method
-                    }
+                    cmap  : options.cmap,
+                    styles: {}
                 };
 
-            result.styles = $.extend(true, result.styles, this.method.styles || {}, options.styles || {});
+            //"Move" values from options to styles
+            nsMap.wmsOptionsToStyles.forEach( id => {
+                if (options[id])
+                    result.styles[id] = options[id];
+            });
 
             //Set layers for vector-parametre
             if (this.parameter && (this.parameter.type == "vector")){
@@ -508,9 +457,6 @@ TRANSPARENT=TRUE
                 else
                     result.layers = this.parameter.speed_direction_id;
             }
-//HER   console.log('this.parameter', this.parameter);
-//HER   console.log('this.collection', this.collection);
-//HER   console.log('=>', result);
             return result;
         },
     });

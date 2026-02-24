@@ -59,7 +59,7 @@
 
         //Extend with default options
 
-        //Extend with methods and options
+        //Extend options
         options = $.extend(true, {}, this.defaultOptions, options);
         options = this.adjustOptions( options );
 
