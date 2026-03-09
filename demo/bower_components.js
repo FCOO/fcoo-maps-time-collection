@@ -78305,7 +78305,7 @@ jquery-base-slider-public.js
     Loading (key-)phrases from json-file(s) using fcoo/promise-get
     ***********************************************************************/
     i18next._loadJSON = function( jsonFileName, options, resolve ){
-        jsonFileName = $.isArray(jsonFileName) ? jsonFileName : [jsonFileName];
+        jsonFileName =  Array.isArray(jsonFileName) ? jsonFileName : [jsonFileName];
 
         $.each( jsonFileName, function( index, url ){
             Promise.getJSON( url, options, resolve );
@@ -78444,10 +78444,11 @@ jquery-base-slider-public.js
 
     /***********************************************************************
     sentence ( langValues, options )
+    s ( langValues, options )
     - langValues = { [lang: value]xN }
     A single translation of a sentence. No key used or added
     ***********************************************************************/
-    i18next.sentence = function( langValues, options ){
+    i18next.sentence = i18next.s = function( langValues, options ){
         var nsTemp = '__SENTENCE_TEMP__',
             keyTemp = '__SENTENCE_KEY__',
             _this = this,
@@ -78465,11 +78466,13 @@ jquery-base-slider-public.js
     };
 
     /***********************************************************************
-    s ( langValues, options )
-    - langValues = { [lang: value]xN }
+    sentenceArray = function( textArray, separator, options)
     ***********************************************************************/
-    i18next.s = function( langValues, options ){
-        return this.sentence( langValues, options );
+    i18next.sentenceArray = function( textArray = [], separator = '', options){
+        textArray = Array.isArray(textArray) ? textArray : [textArray];
+        let resultArray = [];
+        textArray.forEach( txt => resultArray.push( typeof txt == 'object' ? i18next.sentence(txt, options) : txt) );
+        return resultArray.join( typeof separator == 'object' ? i18next.sentence(separator) : separator );
     };
 
 
@@ -142116,6 +142119,14 @@ leaflet-bootstrap-control-legend.js
         initialize
         *******************************************/
         initialize: function(options) {
+            //Check and set options when innerWidth is set
+            if (options.innerWidth){
+                if (options.innerWidth === true)
+                    options.innerWidth = options.width;
+                options.fitWidth = true;
+                options.width = 'fit-content';
+            }
+
             this.options = $.extend(true, this.options, options);
             L.Control.BsButtonBox.prototype.initialize.call(this);
 
@@ -142137,6 +142148,11 @@ leaflet-bootstrap-control-legend.js
 
             this.bsModal = this.$contentContainer.bsModal;
             this.$modalContent = this.bsModal.$content;
+
+            //Set the inner-width
+            if (this.options.innerWidth)
+                this.$modalContent.css('--legend-inner-width', this.options.innerWidth+(typeof this.options.innerWidth == 'number' ? 'px' : ''));
+
 
             //Manually implement extend and diminish functionality
             var $header = this.bsModal.$header;
@@ -142346,6 +142362,25 @@ leaflet-bootstrap-control-legend.js
             ];
 
 
+
+            //If innerWidth is given => calc innerWidthPx
+            if (parent.options.innerWidth && !parent.options.innerWidthPx){
+                let innerWidth = parent.options.innerWidth;
+                if (typeof innerWidth == 'number')
+                    parent.options.innerWidthPx = innerWidth;
+                else {
+                    innerWidth = innerWidth.toLowerCase();
+                    let factor = 1;
+                    let unit  = ['px', 'em', 'rem'].find( nextUnit => innerWidth.includes(nextUnit) );
+                    switch (unit){
+                        case 'px' :  factor = 1; break;
+                        case 'em' :  factor = parent.$modalContent.css('font-size'); break;
+                        case 'rem':  factor = $('body').css('font-size'); break;
+                    }
+                    parent.options.innerWidthPx = parseInt(innerWidth) * parseInt(factor);
+                }
+            }
+
             this.parent = parent;
             if (!this.$container){
                 //Create modal-content
@@ -142366,20 +142401,18 @@ leaflet-bootstrap-control-legend.js
                         closeButton: false
                     };
 
+                if (parent.options.innerWidth)
+                    modalContentOptions.fitWidth = true;
 
                 //The extended content can be 'normal' content and/or buttons/buttonList
                 if (options.content || options.buttons || options.buttonList){
                     var content = [];
 
                     if (options.content){
-
                         this.$contentContainer =
                             $('<div/>')
                                 .addClass('modal-body')
-                                .addClass(options.contentClassName)
-
-                                .toggleClass('no-vertical-padding',   !!options.noVerticalPadding)
-                                .toggleClass('no-horizontal-padding', !!options.noHorizontalPadding);
+                                .addClass(options.contentClassName);
 
                         this.updateContent();
 
@@ -142435,7 +142468,10 @@ leaflet-bootstrap-control-legend.js
                         {onClick: $.proxy(this.remove, this)},
                         options.closeIconOptions
                     );
-                this.$container    = $('<div/>')._bsModalContent(modalContentOptions);
+                this.$container = $('<div/>')
+                                    ._bsModalContent(modalContentOptions)
+                                    .toggleClass('legend-fit-inner-width', !!parent.options.innerWidth);
+
                 this.bsModal = this.$container.bsModal;
                 this.$modalContent = this.bsModal.$modalContent;
 
@@ -151337,7 +151373,7 @@ Objects and methods to handle leaflet-maps
         maxZoom: 12,
 
         zoomSnap: 0.25,
-            
+
         //Hide attribution
         attributionControl: false,
 
@@ -151458,14 +151494,13 @@ Objects and methods to handle leaflet-maps
         bsLegendControl: true,
         bsLegendOptions: {
             position: 'topright',
+            width: '20em',  //<= TODO Adjust
+            innerWidth: true,
             content: {
                 header: {
                     icon: ns.icons.mapLegend,
                     text: ns.texts.mapLegend
                 },
-                noVerticalPadding   : true,
-                noHorizontalPadding : false,
-                width: '20em',  //<= TODO Adjust
             }
         },
 
@@ -157617,7 +157652,7 @@ Objects and methods to create and manages list of models
         modelList: {
             //data located in file under sub-dir 'static' contains all the groups
             dataSubDir  : 'model-domain',
-            dataFileName: 'model-domain.json',
+            dataFileName: 'model-domain.yaml',
             model       : {},   //Options for Model in current instans of ModelList
             domain      : {},   //Options for Domain in current instans of ModelList
         },
@@ -157637,6 +157672,7 @@ Objects and methods to create and manages list of models
 
         ns.promiseList.append({
             fileName: {subDir: modelList.options.dataSubDir, fileName: modelList.options.dataFileName},
+            format  :'YAML',
             resolve : modelList.resolve.bind(modelList)
         });
     };
@@ -157773,13 +157809,13 @@ Objects and methods to create and manages list of models
         },
 
         fullNameSimple: function(){
-            var result = '';
-            $.each([this.options.owner, this.model.options.name, this.options.abbr], function(index, text){
+            let textArray = [];
+            [this.options.owner.toUpperCase(), this.model.options.name, this.options.abbr].forEach( text => {
                 if (text)
-                    result = result + (result ? '&nbsp;/&nbsp;' : '') + text.toUpperCase();
+                    textArray.push(text);
             });
-            result = result + '&nbsp;(' + i18next.s(this.options.areaName) + ')';
-            return result;
+            return i18next.sentenceArray( textArray, '&nbsp;/&nbsp;' ) + '&nbsp;(' + i18next.s(this.options.areaName) + ')';
+
         },
 
 
@@ -157802,45 +157838,68 @@ Objects and methods to create and manages list of models
                 return text.replace(/ /g, '&nbsp;');
             }
             //*****************************************************
-            function abbrAndName( options  ){
-                let o       = options,
-                    idLower = o.id ? o.id.toLowerCase() : 'UNKNOWN',
-                    abbr    = i18next.exists('abbr:'+idLower) ? i18next.t('abbr:'+idLower) : o.id.toUpperCase();
+            function abbrAndName( o /*options*/ ){
+                let idList = o.id ? (Array.isArray(o.id) ? o.id : [o.id]) : [''],
+                    textList  = [],
+                    linkList  = [],
+                    titleList = [],
+                    finish    = false;
 
-                let name =  i18next.exists('name:'+idLower) ?
-                            i18next.t('name:'+idLower) :
-                            ($.isPlainObject(o.name) ? i18next.s(o.name) : o.name) || o.abbr;
+                idList.forEach( (id, index) => {
+                    if (finish) return;
 
-                let textList, linkList;
+                    let idLower = id ? i18next.t(id).toLowerCase() : 'UNKNOWN',
+                        abbr    = i18next.exists('abbr:'+idLower) ? i18next.t('abbr:'+idLower) : i18next.t(id).toUpperCase(),
+                        name    = i18next.exists('name:'+idLower) ?
+                                    i18next.t('name:'+idLower) :
+                                    ($.isPlainObject(o.name) ? i18next.s(o.name) : o.name) || o.abbr || id.toUpperCase(),
+                        link    = (o.link || i18next.exists('link:'+idLower)) ? o.link || 'link:'+idLower : '';
 
-                if (name){
-                    textList = o.prefix ? [o.prefix] : [],
-                    linkList = o.prefix ? [''] : [];
 
-                    if (o.link || i18next.exists('link:'+idLower))
-                        linkList.push(o.link || 'link:'+idLower);
+                    if (index == 0){
+                        //First id
+                        if (name){
+                            textList = o.prefix ? [o.prefix] : [],
+                            linkList = o.prefix ? ['']       : [];
 
-                    textList.push(name);
-                    if (name && (name.toUpperCase() !== abbr.toUpperCase()))
-                        textList.push('(' + abbr + ')');
+                            if (name && (name.toUpperCase() !== abbr.toUpperCase()))
+                                name = name + ' (' + abbr + ')';
 
-                    if (o.postfix)
-                        textList.push(o.postfix);
-                }
-                else
-                    textList = {da:'Ukendt', en:'Unknown'};
+                            textList.push(name);
+                            linkList.push(link);
+
+
+                            if (o.postfix){
+                                textList.push(o.postfix);
+                                linkList.push('');
+                            }
+                        }
+                        else {
+                            textList = {da:'Ukendt', en:'Unknown'};
+                            finish = true;
+                        }
+                    }
+                    else
+                        if (abbr){
+                            textList.push('/', abbr);
+                            linkList.push('', link);
+                        }
+                });
 
                 return {
                     type     : 'textarea',
                     class    : 'info-box',
                     label    : o.label,
                     text     : textList,
+                    title    : titleList,
                     textClass:'text-center',
                     link     : linkList,
                     center   : true,
                     middle   : true
                 };
             }
+
+
             /*****************************************************
             momentAsText(options)
             options = {
@@ -157851,7 +157910,6 @@ Objects and methods to create and manages list of models
                 pastRelative
                 furtureRelative
             }
-
             *****************************************************/
             function momentAsText( options ){
                 let o = options,
@@ -158025,11 +158083,20 @@ Objects and methods to create and manages list of models
                 }
             }
 
-            //Two columns with Owner and Model
+            //Two columns with Owner and Model or System and list of models
+            let label = {da:'Model', en: 'Model'};
+            if (this.model.options.isSystem)
+                label = this.options.modelId ? {da:'System/Model', en: 'System/Model'} : {da:'System', en: 'System'};
             content.push(
                 createSubContainer([
-                    abbrAndName({id: this.options.owner,      label: {da:'Ejer/Distributør', en: 'Owner/Distributor'} }),
-                    abbrAndName({id: this.model.options.name, label: {da:'Model',            en: 'Model'            } })
+                    abbrAndName({
+                        id   : this.options.owner,
+                        label: {da:'Ejer/Distributør',    en: 'Owner/Distributor'}
+                    }),
+                    abbrAndName({
+                        id   : this.options.modelId ? [this.model.options.id, this.options.modelId] : [this.model.options.id],
+                        label: label
+                    })
                 ])
             );
 

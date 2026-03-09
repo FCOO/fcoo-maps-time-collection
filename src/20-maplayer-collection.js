@@ -47,14 +47,14 @@
 
 
         let legendName = options.legendName || options.legendText || parameterLegendName;
+        if (legendName === true)
+            legendName = name;
+
         nameList = [];
         if (options.prefix) nameList.push(options.prefix);
         nameList.push(legendName);
         if (options.postfix) nameList.push(options.postfix);
         options.legendText = ns.combineLang(nameList);
-
-
-
 
 
         //Extend with default options
@@ -198,7 +198,7 @@
                             onWarning: collectionAsModal,
                             onAlert  : collectionAsModal,
                             onError  : collectionAsModal,
-                            content  : this.createLegendContent.bind(this),
+                            content  : this._createLegendContent.bind(this),
                         },
                         this.getLegendOptions(options) || {}
                     );
@@ -210,10 +210,26 @@
         },
 
         /**********************************************************
+        _createLegendContent
+        **********************************************************/
+        _createLegendContent: function( $container, layer, map ){
+            const legendWidth = map.bsLegendControl ? map.bsLegendControl.options.innerWidthPx : 0;
+            const create = this.options.createLegend || this.options.createLegendContent;
+            if (create)
+                create( $container, this, map, legendWidth );
+            else
+                this.createLegendContent( $container, this, map, legendWidth );
+        },
+
+
+
+
+
+
+        /**********************************************************
         createLegendContent
         **********************************************************/
-        createLegendContent: function( $container ){
-            $container.text('Hej');
+        createLegendContent: function( /* $container, layer, map, this, this.legendWidth */ ){
         },
 
         /**********************************************************

@@ -65,6 +65,7 @@
                 plot_method : 'contourf',
                 zIndex      : 'DYNAMIC_SCALE_AIR' ,
                 desc        : '',
+                radioGroup: 'SCALE_RADIOGROUP'
             },
             'VECTOR' : {
                 plot_method     : 'color_quiver1',  //Wind
@@ -92,9 +93,36 @@
             }
         };
 
-        function add(defaultsId, options){
-            nsMap.add_MapLayer_Collection_wms( $.extend({}, defaults[defaultsId], options) );
+
+
+        function createLegendContent( $container, layer, map, legendWidth  ){
+            let layerOptions = layer.options.layerOptions,
+                param = {
+                    request: 'GetColorbar',
+                    styles : 'horizontal,nolabel',
+                    cmap   : layerOptions.cmap
+                },
+                src = layerOptions.url + '?';
+            $.each( param, (id, value) => src = src + id + '=' + value + '&' );
+
+            $('<div/>')
+                .width(legendWidth)
+                .css('border', '1px solid red')
+                .text(legendWidth)
+                .appendTo( $container );
+
+
+            $('<img/>')
+                .attr('src', src)
+                .width('calc(100% - 20px)')
+                .css('margin-left', '20px')
+                .appendTo( $container );
         }
+
+        function add(defaultsId, options){
+            nsMap.add_MapLayer_Collection_wms( $.extend(true, {createLegend: createLegendContent }, defaults[defaultsId], options) );
+        }
+
 
 
         /************************************
@@ -105,6 +133,7 @@
             idList = [
                 "CUR",
                 "WIND",
+                "WINDBABS",
                 "WIND2",
                 "WIND_SPEED",
                 "WIND_DIR",
@@ -116,6 +145,31 @@
         ns.promiseList.appendLast({
             data: 'Create METOC menus',
             resolve: () => {
+//*
+
+                add('VECTOR', {
+                    id          : 'WINDBABS',
+                    _icon        : 'fal fa-lg fa-up-right',
+                    deltaZIndex : 1,
+                    //prefix : 'Prefix',
+                    //postfix: 'Postfix',
+                    parameterId : 'wind',
+                    name        : {da: 'Vindbars', en: 'Wind barbs'},
+                    legendName  : true,
+                    //noLegend    : true,
+                    unit        : 'kn',
+                    VECTOR_OLD  : true,
+                    colorScale  : 'Wind_ms_BGYRP_11colors',
+                    plot_method : 'black_arrowbarbs'
+                });
+
+//*/
+
+
+
+
+
+
                 add('DIRECTION_VECTOR', {
                     id          : "WIND_DIR",
                     parameterId : 'wind',
@@ -145,6 +199,12 @@
                 });
 
 //*/
+
+
+
+
+
+
 //*
 
                 add('VECTOR', {
@@ -223,12 +283,12 @@
 
         //Create menu-list
         let menuList = [];
-        console.log(nsMap.createMapLayer);
         idList.forEach( id => {
 //            if (nsMap.createMapLayer[id])
                 menuList.push(id);
         });
 
+        nsMap.secondaryMapOptions.bsLegendOptions.width = '15em';
 
         nsMap.createApplication({
             //options

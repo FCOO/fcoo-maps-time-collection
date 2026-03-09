@@ -141,7 +141,10 @@ TRANSPARENT=TRUE
                     result.layers = this.parameter.speed_direction_id;
             }
             return result;
-        },
+        }
+
+
+
     });
 }(jQuery, L, this, document));
 
