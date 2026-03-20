@@ -249,12 +249,11 @@
                             onWarning: collectionAsModal,
                             onAlert  : collectionAsModal,
                             onError  : collectionAsModal,
-                            content  : this._createLegendContent.bind(this),
+                            content  : options.emptyLegend ? '' : this._createLegendContent.bind(this),
                         },
                         this.getLegendOptions(options) || {}
                     );
         },
-
 
         //getLegendOptions = extract legendOptions from options
         getLegendOptions: function(/*options*/){
