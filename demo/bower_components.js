@@ -87918,18 +87918,23 @@ module.exports = g;
                     $icon.addClass(className);
             });
         }
-        else {
-            var allClassNames = options.icon || options.class || '';
+        else
+            if (options instanceof $){
+                $icon = options.clone();
+                $icon.addClass(className);
+            }
+                else {
+                var allClassNames = options.icon || options.class || '';
 
-            //Append $.FONTAWESOME_PREFIX if icon don't contain fontawesome prefix ("fa?")
-            if (allClassNames.search(iconfontPrefixRegExp) == -1)
-                allClassNames = $.FONTAWESOME_PREFIX + ' ' + allClassNames;
+                //Append $.FONTAWESOME_PREFIX if icon don't contain fontawesome prefix ("fa?")
+                if (allClassNames.search(iconfontPrefixRegExp) == -1)
+                    allClassNames = $.FONTAWESOME_PREFIX + ' ' + allClassNames;
 
-            allClassNames = allClassNames + ' ' + (className || '');
+                allClassNames = allClassNames + ' ' + (className || '');
 
-            $icon = $._bsCreateElement( 'i', null, title, null, allClassNames );
+                $icon = $._bsCreateElement( 'i', null, title, null, allClassNames );
 
-        }
+            }
         $icon.appendTo( $appendTo );
         return $icon;
     };
@@ -142350,7 +142355,10 @@ leaflet-bootstrap-control-legend.js
             if ($.isArray(normalIcon))
                 normalIconIsStackedIcon = true;
             else
-                normalIcon = normalIcon + ' hide-for-bsl-working';
+                if (normalIcon instanceof $)
+                    normalIcon.addClass('hide-for-bsl-working');
+                else
+                    normalIcon = normalIcon + ' hide-for-bsl-working';
             /*
             Create 2+1 icons:
             The first for layer=visible contains of two icons: normal and working
@@ -142360,7 +142368,6 @@ leaflet-bootstrap-control-legend.js
                 [normalIcon, 'show-for-bsl-working fa-fw fas fa-spinner fa-spin no-margin-left'],
                 'fa-fw fas fa-eye-slash ' + (this.options.hiddenIconClass || '')
             ];
-
 
 
             //If innerWidth is given => calc innerWidthPx

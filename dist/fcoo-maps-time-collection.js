@@ -76,6 +76,8 @@
     function MapLayer_Collection(options){
         this.id         = options.id;
         this.parameter  = nsParameter.getParameter(options.parameter || options.parameterId || options.id);
+        this.unit = nsParameter.getUnit(options.unit) || (this.parameter ? this.parameter.unit : null);
+
         this.collection = this.parameter ? this.parameter.collection : null;
 
         if (this.collection)
@@ -85,8 +87,8 @@
         let parameterName       = {da:'Ukendt', en:'Unknown'},
             parameterLegendName = parameterName;
         if (this.parameter){
-            parameterName       = this.parameter.getName(false/*inclUnit*/, options.z, options.unit),
-            parameterLegendName = this.parameter.getName(true/*inclUnit*/,  options.z, options.unit);
+            parameterName       = this.parameter.getName(false/*inclUnit*/, options.z),
+            parameterLegendName = this.parameter.getName(true /*inclUnit*/,options.z, this.unit);
         }
 
         let name     = options.name || options.text || parameterName,
