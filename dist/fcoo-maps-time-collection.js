@@ -87,8 +87,8 @@
         let parameterName       = {da:'Ukendt', en:'Unknown'},
             parameterLegendName = parameterName;
         if (this.parameter){
-            parameterName       = this.parameter.getName(false/*inclUnit*/, options.z),
-            parameterLegendName = this.parameter.getName(true /*inclUnit*/,options.z, this.unit);
+            parameterName       = this.parameter.getName(!!options.inclUnit,                            options.z, this.unit),
+            parameterLegendName = this.parameter.getName(!!options.inclUnit || !options.noUnitInLegend, options.z, this.unit);
         }
 
         let name     = options.name || options.text || parameterName,
