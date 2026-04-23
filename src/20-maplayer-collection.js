@@ -36,8 +36,22 @@
         let parameterName       = {da:'Ukendt', en:'Unknown'},
             parameterLegendName = parameterName;
         if (this.parameter){
-            parameterName       = this.parameter.getName(!!options.inclUnit,                            options.z, this.unit),
-            parameterLegendName = this.parameter.getName(!!options.inclUnit || !options.noUnitInLegend, options.z, this.unit);
+            //parameterName       = this.parameter.getName(!!options.inclUnit,                            options.z, this.unit),
+            parameterName = this.parameter._getName({
+                inclUnit    : options.inclUnit,
+                z           : options.z,
+                useUnit     : this.unit,
+                useShortName: false,
+                postfix     : options.namePostfix
+            });
+            //parameterLegendName = this.parameter.getName(!!options.inclUnit || !options.noUnitInLegend, options.z, this.unit, true);
+            parameterLegendName =  this.parameter._getName({
+                inclUnit    : options.inclUnit || !options.noUnitInLegend,
+                z           : options.z,
+                useUnit     : this.unit,
+                useShortName: true,
+                postfix     : options.namePostfix
+            });
         }
 
         let name     = options.name || options.text || parameterName,
