@@ -151,6 +151,8 @@
         });
 
         nsMap.MapLayer_time_wms_dynamic.call(this, options);
+
+        this.initialize();
     }
 
     nsMap.MapLayer_Collection = MapLayer_Collection;
@@ -164,6 +166,13 @@
         default options
         **********************************************************/
         defaultOptions: {
+
+        },
+
+        /**********************************************************
+        initialize
+        **********************************************************/
+        initialize: function(){
 
         },
 
@@ -205,6 +214,7 @@
         getLayerOptions: function(/* options */){
             return {};
         },
+
 
         /**********************************************************
         _getLegendOptions: Default options
@@ -286,11 +296,6 @@
             else
                 this.createLegendContent( $container, this, map, legendWidth );
         },
-
-
-
-
-
 
         /**********************************************************
         createLegendContent
