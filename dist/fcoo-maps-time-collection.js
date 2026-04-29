@@ -71,6 +71,27 @@
     This is only a parent constructor.
     On top of MapLayer_Collection it is possible to create constructor a la MapLayer_Collection_XXX
     that have specific methods and properties
+
+    The layer will have two names:
+    1: In the (left) menu, and
+    2: In the legend on each map
+    For both the content can be
+    prefix parameter-name (z) name-postfix [unit-name] postfix
+    Unit-name are in []
+    There are some options the sets witch parts
+    There are various options that determine which parts are included
+
+    [unit-name]:
+    unit-name = options.unitName or options.unit.getName()
+    Default: Excluded from 1: and included in 2.
+    options.inclUnit = true => included in 1: and 2:
+    options.noUnitInLegend = true => excluded from 2:
+
+
+
+
+
+
     ***********************************************************************************************************************
     ***********************************************************************************************************************/
     function MapLayer_Collection(options){
@@ -87,17 +108,15 @@
         let parameterName       = {da:'Ukendt', en:'Unknown'},
             parameterLegendName = parameterName;
         if (this.parameter){
-            //parameterName       = this.parameter.getName(!!options.inclUnit,                            options.z, this.unit),
             parameterName = this.parameter._getName({
-                inclUnit    : options.inclUnit,
+                inclUnit    : !options.unitName && options.inclUnit,
                 z           : options.z,
                 useUnit     : this.unit,
                 useShortName: false,
                 postfix     : options.namePostfix
             });
-            //parameterLegendName = this.parameter.getName(!!options.inclUnit || !options.noUnitInLegend, options.z, this.unit, true);
             parameterLegendName =  this.parameter._getName({
-                inclUnit    : options.inclUnit || !options.noUnitInLegend,
+                inclUnit    : !options.unitName && (options.inclUnit || !options.noUnitInLegend),
                 z           : options.z,
                 useUnit     : this.unit,
                 useShortName: true,
@@ -106,21 +125,45 @@
         }
 
         let name     = options.name || options.text || parameterName,
-            nameList = [];
-        if (options.prefix) nameList.push(options.prefix);
+            nameList = [],
+            unitName = '';
+
+        if (options.unitName)
+            unitName = ns.combineLang(['[', options.unitName, ']'], '');
+
+        //Create name for menu
+        if (options.prefix)
+            nameList.push(options.prefix);
+
         nameList.push(name);
-        if (options.postfix) nameList.push(options.postfix);
+
+        if (unitName && options.inclUnit)
+            nameList.push(unitName);
+
+        if (options.postfix)
+            nameList.push(options.postfix);
+
         options.text = ns.combineLang(nameList);
 
 
+        //Create name for legend
         let legendName = options.legendName || options.legendText || parameterLegendName;
         if (legendName === true)
             legendName = name;
 
         nameList = [];
-        if (options.prefix) nameList.push(options.prefix);
+
+        if (options.prefix)
+            nameList.push(options.prefix);
+
         nameList.push(legendName);
-        if (options.postfix) nameList.push(options.postfix);
+
+        if (unitName && (options.inclUnit || !options.noUnitInLegend))
+            nameList.push(unitName);
+
+        if (options.postfix)
+            nameList.push(options.postfix);
+
         options.legendText = ns.combineLang(nameList);
 
 

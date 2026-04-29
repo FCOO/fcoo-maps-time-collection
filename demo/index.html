@@ -237,11 +237,17 @@
 
 //*
                 add('SCALE', {
-                    id          : 'AIRTEMP',
+                    id         : 'AIRTEMP',
                     //text        : {da:'Lufttemperatur', en:'Air temperature'},
-                    parameterId : 'air_temperature',
-                    namePostfix  : 'N-Postfix',
-                    postfix      : 'POST',
+                    parameterId: 'air_temperature',
+                    prefix     : 'Prefix',
+                    z          : 'z-value',
+                    namePostfix: 'namePostfix',
+                    postfix    : 'postfix',
+                    inclUnit   : true,
+                    //noUnitInLegend: true,
+                    unitName   : 'Beaufort',
+
                     colorScale  : 'AirTempGlobal_C_BWYR_16colors_1.0'
                 });
 
