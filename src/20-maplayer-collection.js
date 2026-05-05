@@ -188,7 +188,7 @@
         _getLayerOptions: function(options){
             return $.extend(true, {},{
                             url     : this.collection ? this.collection.fullPath + '/' + this.subDir : undefined,
-                            dataset : this.collection.id,
+                            dataset : this.collection ? this.collection.id : 'MISSING',
                             layers  : this.parameter.id,
                             //zIndex  : this.options.zIndex,
                             zIndex  : options.zIndex,
@@ -213,52 +213,54 @@
         getLegendOptions : Individuel options
         **********************************************************/
         _getLegendOptions: function(options){
-            let collectionAsModal = function( id, selected, $button, map ){
-                let modalOptions = {};
-                if (map){
-                    modalOptions = {
-                        bounds      : map.getBounds(),
-                        backgroundId: map.backgroundLayerColor ? map.backgroundLayerColor.id : 'standard',
-                        time        : map.time.relative || 0
-                    };
-                }
-
-                if (nsTime.applicationTimeRange)
-                    $.extend(modalOptions, {
-                        timeRange: [nsTime.applicationTimeRange.currentMin, nsTime.applicationTimeRange.currentMax],
-                        timeColor:  {
-                            past  : nsTime.pastColorValue,
-                            now   : nsTime.nowColorValue,
-                            future: nsTime.futureColorValue
-                        }
-                    });
-
-                /*
-                Note:
-                The time-range for the collection can be larger that the time-range used in the application
-                There are two possible ways:
-                A:  Just show the time-range for the collection "as is"
-                B:  Adjust the time-range displayed in the info-modal to fit the time-range given in the application.
-                    Will need to use the info about current time-range for the current selected time mode
-                    nsTime.getCurrentTimeModeData() return
-                    TimeModeData = object with methods and data for a specific timeMode
-                    TimeModeData.data = {
-                        currentMoment   : MOMENT
-                        currentRelative : NUMBER
-                        min             : NUMBER
-                        max             : NUMBER
-                        globalMin       : NUMBER
-                        globalMax       : NUMBER
-                        start           : NUMBER
-                        end             : NUMBER
+            let collectionAsModal;
+            if (this.collection)
+                collectionAsModal = function( id, selected, $button, map ){
+                    let modalOptions = {};
+                    if (map){
+                        modalOptions = {
+                            bounds      : map.getBounds(),
+                            backgroundId: map.backgroundLayerColor ? map.backgroundLayerColor.id : 'standard',
+                            time        : map.time.relative || 0
+                        };
                     }
 
-                OPTION A IS USED!
-                */
+                    if (nsTime.applicationTimeRange)
+                        $.extend(modalOptions, {
+                            timeRange: [nsTime.applicationTimeRange.currentMin, nsTime.applicationTimeRange.currentMax],
+                            timeColor:  {
+                                past  : nsTime.pastColorValue,
+                                now   : nsTime.nowColorValue,
+                                future: nsTime.futureColorValue
+                            }
+                        });
 
-                modalOptions.header = {icon: options.icon, text: options.text};
-                this.collection.asModal(modalOptions);
-            }.bind(this);
+                    /*
+                    Note:
+                    The time-range for the collection can be larger that the time-range used in the application
+                    There are two possible ways:
+                    A:  Just show the time-range for the collection "as is"
+                    B:  Adjust the time-range displayed in the info-modal to fit the time-range given in the application.
+                        Will need to use the info about current time-range for the current selected time mode
+                        nsTime.getCurrentTimeModeData() return
+                        TimeModeData = object with methods and data for a specific timeMode
+                        TimeModeData.data = {
+                            currentMoment   : MOMENT
+                            currentRelative : NUMBER
+                            min             : NUMBER
+                            max             : NUMBER
+                            globalMin       : NUMBER
+                            globalMax       : NUMBER
+                            start           : NUMBER
+                            end             : NUMBER
+                        }
+
+                    OPTION A IS USED!
+                    */
+
+                    modalOptions.header = {icon: options.icon, text: options.text};
+                    this.collection.asModal(modalOptions);
+                }.bind(this);
 
             return  $.extend(true, {}, {
                             text     : options.legendText,
@@ -306,6 +308,9 @@
         update
         **********************************************************/
         update: function(){
+            if (!this.collection)
+                return;
+
             //Update the timeRange of the mapLayer from the timeRange from the collection
             this.setTimeRange( this.collection.timeRange );
 
